@@ -1,0 +1,39 @@
+{
+  "skills": [
+    {
+      "name": "Python",
+      "icon": "🐍",
+      "level": 90
+    },
+    {
+      "name": "PHP",
+      "icon": "🐘",
+      "level": 75
+    },
+    {
+      "name": "Excel",
+      "icon": "📊",
+      "level": 85
+    },
+    {
+      "name": "HTML",
+      "icon": "🌐",
+      "level": 90
+    },
+    {
+      "name": "JavaScript",
+      "icon": "⚡",
+      "level": 80
+    },
+    {
+      "name": "R",
+      "icon": "📉",
+      "level": 70
+    },
+    {
+      "name": "RGERGERG",
+      "icon": "💡",
+      "level": 99
+    }
+  ]
+}

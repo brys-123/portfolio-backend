@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel | Bryson Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --bg:#0f0c29;
+      --surface:#1a1245;
+      --border:#2e2570;
+      --accent:#a78bfa;
+      --accent2:#34d4f1;
+      --text:#f0eeff;
+      --dim:#9990cc;
+      --red:#ff5f87;
+      --green:#00d464;
+      --radius:12px;
+    }
+    body{
+      font-family:'Space Grotesk',sans-serif;
+      background:linear-gradient(135deg,#0f0c29,#1e1245,#15204a);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar{
+      position:fixed;top:0;left:0;
+      width:220px;height:100vh;
+      background:rgba(26,18,69,0.98);
+      border-right:1px solid var(--border);
+      padding:28px 16px;
+      display:flex;flex-direction:column;gap:8px;
+      z-index:100;
+      transition:transform 0.25s ease;
+    }
+    .sidebar-logo{
+      font-family:'Fira Code',monospace;
+      font-size:1.1rem;font-weight:700;
+      color:var(--text);
+      margin-bottom:24px;padding-bottom:16px;
+      border-bottom:1px solid var(--border);
+    }
+    .sidebar-logo span{color:var(--accent);}
+    .nav-item{
+      padding:10px 14px;border-radius:8px;cursor:pointer;
+      font-size:0.88rem;font-weight:500;color:var(--dim);
+      transition:all 0.2s;display:flex;align-items:center;gap:10px;
+      border:none;background:transparent;width:100%;text-align:left;
+    }
+    .nav-item:hover{background:rgba(167,139,250,0.1);color:var(--text);}
+    .nav-item.active{background:rgba(167,139,250,0.15);color:var(--accent);border:1px solid rgba(167,139,250,0.2);}
+
+    /* BURGER */
+    .burger{
+      display:none;position:fixed;top:12px;left:12px;z-index:250;
+      background:rgba(26,18,69,0.95);color:var(--text);
+      border:1px solid var(--border);padding:8px 10px;
+      border-radius:8px;font-size:1.1rem;cursor:pointer;
+    }
+
+    /* MAIN */
+    .main{margin-left:220px;padding:32px;min-height:100vh;}
+    .page{display:none;}
+    .page.active{display:block;}
+
+    /* PAGE HEADER */
+    .page-header{margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+    .page-header h1{font-size:1.5rem;font-weight:700;}
+    .page-header p{color:var(--dim);font-size:0.88rem;margin-top:4px;}
+
+    /* STATS */
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:16px;margin-bottom:28px;
+    }
+    .stat-card{
+      background:rgba(26,18,69,0.9);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:20px;text-align:center;
+      transition:all 0.3s;
+    }
+    .stat-card:hover{border-color:var(--accent);transform:translateY(-3px);}
+    .stat-num{
+      font-size:2rem;font-weight:700;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .stat-label{font-size:0.8rem;color:var(--dim);margin-top:4px;font-family:'Fira Code',monospace;}
+
+    /* API CARDS */
+    .api-cards{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:16px;margin-bottom:32px;
+    }
+    .api-card{
+      background:rgba(26,18,69,0.9);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:20px;transition:all 0.3s;
+    }
+    .api-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 24px rgba(167,139,250,0.15);}
+    .api-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+    .api-method{
+      font-family:'Fira Code',monospace;font-size:0.72rem;
+      padding:3px 10px;border-radius:50px;font-weight:600;
+    }
+    .get{background:rgba(0,212,100,0.12);color:var(--green);border:1px solid rgba(0,212,100,0.3);}
+    .post{background:rgba(52,212,241,0.12);color:var(--accent2);border:1px solid rgba(52,212,241,0.3);}
+    .put{background:rgba(167,139,250,0.12);color:var(--accent);border:1px solid rgba(167,139,250,0.3);}
+    .delete{background:rgba(255,95,135,0.12);color:var(--red);border:1px solid rgba(255,95,135,0.3);}
+    .api-card h3{font-family:'Fira Code',monospace;font-size:0.85rem;color:var(--text);margin-bottom:6px;}
+    .api-card p{color:var(--dim);font-size:0.82rem;line-height:1.5;}
+    .api-response-box{
+      margin-top:12px;background:rgba(15,12,41,0.8);
+      border-radius:8px;padding:12px;font-size:0.78rem;
+      font-family:'Fira Code',monospace;color:var(--accent2);
+      display:none;max-height:160px;overflow-y:auto;word-break:break-all;
+    }
+
+    /* BUTTONS */
+    .btn-test{
+      margin-top:14px;padding:7px 16px;
+      background:rgba(167,139,250,0.1);color:var(--accent);
+      border:1px solid rgba(167,139,250,0.3);border-radius:8px;
+      font-size:0.8rem;font-family:'Space Grotesk',sans-serif;
+      cursor:pointer;transition:all 0.2s;
+    }
+    .btn-test:hover{background:rgba(167,139,250,0.2);}
+    .btn-save{
+      padding:11px 28px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#fff;border:none;border-radius:50px;
+      font-family:'Space Grotesk',sans-serif;font-size:0.9rem;font-weight:600;
+      cursor:pointer;transition:all 0.3s;margin-top:8px;
+    }
+    .btn-save:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(167,139,250,0.4);}
+    .btn-edit{
+      padding:7px 14px;background:rgba(52,212,241,0.1);color:var(--accent2);
+      border:1px solid rgba(52,212,241,0.3);border-radius:8px;
+      font-size:0.8rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all 0.2s;
+    }
+    .btn-edit:hover{background:rgba(52,212,241,0.2);}
+    .btn-delete{
+      padding:7px 14px;background:rgba(255,95,135,0.1);color:var(--red);
+      border:1px solid rgba(255,95,135,0.3);border-radius:8px;
+      font-size:0.8rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all 0.2s;
+    }
+    .btn-delete:hover{background:rgba(255,95,135,0.2);}
+    .btn-cancel{
+      padding:9px 20px;background:transparent;
+      border:1px solid var(--border);color:var(--dim);
+      border-radius:8px;cursor:pointer;
+      font-family:'Space Grotesk',sans-serif;font-size:0.85rem;
+    }
+
+    /* FORMS */
+    .form-card{
+      background:rgba(26,18,69,0.9);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:24px;margin-bottom:20px;
+    }
+    .form-card h2{
+      font-family:'Fira Code',monospace;font-size:0.88rem;
+      color:var(--accent2);margin-bottom:18px;
+    }
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+    .form-row.single{grid-template-columns:1fr;}
+    .field{margin-bottom:4px;}
+    label{
+      display:block;font-size:0.78rem;
+      font-family:'Fira Code',monospace;color:var(--accent2);
+      margin-bottom:6px;letter-spacing:0.5px;
+    }
+    input,textarea,select{
+      width:100%;background:rgba(15,12,41,0.8);
+      border:1px solid var(--border);border-radius:8px;
+      padding:11px 14px;color:var(--text);
+      font-family:'Space Grotesk',sans-serif;font-size:0.88rem;
+      outline:none;transition:border-color 0.3s;
+    }
+    input:focus,textarea:focus{border-color:var(--accent);}
+    input::placeholder,textarea::placeholder{color:var(--dim);}
+    textarea{resize:vertical;min-height:80px;}
+
+    /* SKILLS TABLE */
+    .skills-table{width:100%;border-collapse:collapse;}
+    .skills-table th{
+      padding:10px 16px;text-align:left;
+      font-family:'Fira Code',monospace;font-size:0.75rem;
+      color:var(--accent2);letter-spacing:1px;
+      background:rgba(167,139,250,0.1);
+      border-bottom:2px solid var(--accent);
+    }
+    .skills-table td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:0.9rem;}
+    .skills-table tr:hover td{background:rgba(167,139,250,0.05);}
+
+    /* PROJECTS */
+    .project-item{
+      background:rgba(26,18,69,0.9);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:18px 22px;margin-bottom:12px;
+      display:flex;justify-content:space-between;
+      align-items:flex-start;gap:16px;
+      transition:border-color 0.3s;
+    }
+    .project-item:hover{border-color:var(--accent);}
+    .project-info h3{font-size:0.98rem;font-weight:600;margin-bottom:5px;}
+    .project-info p{color:var(--dim);font-size:0.83rem;line-height:1.5;margin-bottom:8px;}
+    .tech-tags{display:flex;flex-wrap:wrap;gap:5px;}
+    .tech-tag{
+      background:rgba(167,139,250,0.12);color:var(--accent);
+      padding:2px 10px;border-radius:50px;font-size:0.72rem;
+      font-family:'Fira Code',monospace;border:1px solid rgba(167,139,250,0.25);
+    }
+    .project-actions{display:flex;gap:8px;flex-shrink:0;}
+
+    /* MODAL */
+    .modal-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,0.7);
+      backdrop-filter:blur(6px);z-index:200;
+      display:none;align-items:center;justify-content:center;
+    }
+    .modal-overlay.open{display:flex;}
+    .modal{
+      background:#1a1245;border:1px solid var(--border);
+      border-radius:var(--radius);padding:28px;
+      width:100%;max-width:500px;
+    }
+    .modal h2{font-family:'Fira Code',monospace;font-size:0.88rem;color:var(--accent2);margin-bottom:18px;}
+    .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end;}
+
+    /* TOAST */
+    .toast{
+      position:fixed;bottom:24px;right:24px;
+      padding:12px 22px;border-radius:var(--radius);
+      font-size:0.88rem;font-weight:500;z-index:999;display:none;
+    }
+    .toast.success{background:rgba(0,212,100,0.15);color:var(--green);border:1px solid rgba(0,212,100,0.3);}
+    .toast.error{background:rgba(255,95,135,0.15);color:var(--red);border:1px solid rgba(255,95,135,0.3);}
+
+    /* MOBILE */
+    @media(max-width:720px){
+      .burger{display:block;}
+      .sidebar{transform:translateX(-110%);}
+      .sidebar.open{transform:translateX(0);}
+      .main{margin-left:0;padding:18px;padding-top:60px;}
+      .form-row{grid-template-columns:1fr;}
+      .project-item{flex-direction:column;align-items:stretch;}
+      .project-actions{justify-content:flex-start;}
+      .modal{max-width:94%;padding:18px;}
+      .api-cards{grid-template-columns:1fr;}
+      .stats{grid-template-columns:repeat(2,1fr);}
+      .page-header h1{font-size:1.25rem;}
+    }
+  </style>
+</head>
+<body>
+
+  <button class="burger" onclick="toggleSidebar()">☰</button>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">BAN<span>.</span>admin</div>
+    <button class="nav-item active" onclick="showPage('dashboard', this)"><i class="fas fa-chart-bar"></i> Dashboard</button>
+    <button class="nav-item" onclick="showPage('profile', this)"><i class="fas fa-user"></i> Profile</button>
+    <button class="nav-item" onclick="showPage('skills', this)"><i class="fas fa-code"></i> Skills</button>
+    <button class="nav-item" onclick="showPage('projects', this)"><i class="fas fa-folder"></i> Projects</button>
+    <button class="nav-item" onclick="showPage('apis', this)"><i class="fas fa-plug"></i> API Routes</button>
+  </nav>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Welcome back, Bryson! Here's your portfolio overview.</p>
+      </div>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-projects">—</div>
+          <div class="stat-label">Projects</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-skills">—</div>
+          <div class="stat-label">Skills</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">6</div>
+          <div class="stat-label">API Routes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">🟢</div>
+          <div class="stat-label">API Status</div>
+        </div>
+      </div>
+      <div class="api-cards">
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/profile</h3><span class="api-method get">GET</span></div>
+          <p>Returns your personal profile information</p>
+        </div>
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/skills</h3><span class="api-method get">GET</span></div>
+          <p>Returns your list of skills</p>
+        </div>
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/projects</h3><span class="api-method get">GET</span></div>
+          <p>Returns all your projects</p>
+        </div>
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/projects</h3><span class="api-method post">POST</span></div>
+          <p>Add a new project</p>
+        </div>
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/projects/:id</h3><span class="api-method put">PUT</span></div>
+          <p>Update an existing project</p>
+        </div>
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/projects/:id</h3><span class="api-method delete">DELETE</span></div>
+          <p>Delete a project</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="page-profile">
+      <div class="page-header">
+        <h1>Edit Profile</h1>
+        <p>Update your personal information shown on the portfolio</p>
+      </div>
+      <div class="form-card">
+        <h2>// Personal Information</h2>
+        <div class="form-row">
+          <div class="field"><label>FULL NAME</label><input type="text" id="p-name" placeholder="Your full name"/></div>
+          <div class="field"><label>TITLE / ROLE</label><input type="text" id="p-title" placeholder="e.g. Data Scientist"/></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>EMAIL</label><input type="email" id="p-email" placeholder="your@email.com"/></div>
+          <div class="field"><label>PHONE</label><input type="text" id="p-phone" placeholder="+255 ..."/></div>
+        </div>
+        <div class="form-row single">
+          <div class="field"><label>LOCATION</label><input type="text" id="p-location" placeholder="City, Country"/></div>
+        </div>
+        <div class="form-row single">
+          <div class="field"><label>BIO</label><textarea id="p-bio" placeholder="Short bio..."></textarea></div>
+        </div>
+        <button class="btn-save" onclick="saveProfile()">💾 Save Profile</button>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="page" id="page-skills">
+      <div class="page-header">
+        <h1>Manage Skills</h1>
+        <p>Add or remove skills shown on your portfolio</p>
+      </div>
+      <div class="form-card">
+        <h2>// Add New Skill</h2>
+        <div class="form-row">
+          <div class="field"><label>SKILL NAME</label><input type="text" id="new-skill" placeholder="e.g. TensorFlow"/></div>
+          <div class="field"><label>ICON (emoji)</label><input type="text" id="new-skill-icon" placeholder="🧠"/></div>
+          <div class="field"><label>LEVEL (0-100)</label><input type="number" id="new-skill-level" min="0" max="100" placeholder="85"/></div>
+        </div>
+        <button class="btn-save" onclick="addSkill()">+ Add Skill</button>
+      </div>
+      <div class="form-card">
+        <h2>// Current Skills</h2>
+        <div id="skills-list"><p style="color:var(--dim)">Loading...</p></div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="page" id="page-projects">
+      <div class="page-header">
+        <h1>Manage Projects</h1>
+        <p>Add, edit or delete your portfolio projects</p>
+      </div>
+      <div class="form-card">
+        <h2>// Add New Project</h2>
+        <div class="form-row">
+          <div class="field"><label>PROJECT TITLE</label><input type="text" id="new-title" placeholder="Project name"/></div>
+          <div class="field"><label>PROJECT LINK</label><input type="text" id="new-link" placeholder="https://..."/></div>
+        </div>
+        <div class="form-row single">
+          <div class="field"><label>DESCRIPTION</label><textarea id="new-desc" placeholder="Describe your project"></textarea></div>
+        </div>
+        <div class="form-row single">
+          <div class="field"><label>TECHNOLOGIES (comma separated)</label><input type="text" id="new-tech" placeholder="Python, Flask, React"/></div>
+        </div>
+        <button class="btn-save" onclick="addProject()">+ Add Project</button>
+      </div>
+      <div id="projects-list"></div>
+    </div>
+
+    <!-- API ROUTES -->
+    <div class="page" id="page-apis">
+      <div class="page-header">
+        <h1>API Routes</h1>
+        <p>Test all your live backend API endpoints</p>
+      </div>
+      <div class="api-cards">
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/profile</h3><span class="api-method get">GET</span></div>
+          <p>Returns personal profile data</p>
+          <button class="btn-test" onclick="testApi('/api/profile', 'res-profile')">▶ Test</button>
+          <div class="api-response-box" id="res-profile"></div>
+        </div>
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/skills</h3><span class="api-method get">GET</span></div>
+          <p>Returns all skills</p>
+          <button class="btn-test" onclick="testApi('/api/skills', 'res-skills')">▶ Test</button>
+          <div class="api-response-box" id="res-skills"></div>
+        </div>
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/projects</h3><span class="api-method get">GET</span></div>
+          <p>Returns all projects</p>
+          <button class="btn-test" onclick="testApi('/api/projects', 'res-projects')">▶ Test</button>
+          <div class="api-response-box" id="res-projects"></div>
+        </div>
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/projects</h3><span class="api-method post">POST</span></div>
+          <p>Add a new project via POST request</p>
+        </div>
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/projects/:id</h3><span class="api-method put">PUT</span></div>
+          <p>Update existing project by ID</p>
+        </div>
+        <div class="api-card">
+          <div class="api-card-top"><h3>/api/projects/:id</h3><span class="api-method delete">DELETE</span></div>
+          <p>Delete a project by ID</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <h2>// Edit Project</h2>
+      <input type="hidden" id="edit-id"/>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="field"><label>TITLE</label><input type="text" id="edit-title"/></div>
+        <div class="field"><label>LINK</label><input type="text" id="edit-link"/></div>
+        <div class="field"><label>DESCRIPTION</label><textarea id="edit-desc"></textarea></div>
+        <div class="field"><label>TECHNOLOGIES</label><input type="text" id="edit-tech"/></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" onclick="saveEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // const API = 'http://localhost:5000/api';
+    const API = 'https://portfolio-backend-ezd6.onrender.com/api';
+
+    function showPage(name, el) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      el.classList.add('active');
+      if (window.innerWidth < 720) document.getElementById('sidebar').classList.remove('open');
+      if (name === 'projects') loadProjects();
+      if (name === 'skills') loadSkills();
+      if (name === 'dashboard') loadStats();
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // STATS
+    async function loadStats() {
+      try {
+        const p = await fetch(`${API}/projects`).then(r => r.json());
+        const s = await fetch(`${API}/skills`).then(r => r.json());
+        document.getElementById('stat-projects').textContent = p.projects ? p.projects.length : '—';
+        document.getElementById('stat-skills').textContent = s.skills ? s.skills.length : '—';
+      } catch(e) {
+        document.getElementById('stat-projects').textContent = '—';
+        document.getElementById('stat-skills').textContent = '—';
+      }
+    }
+
+    // PROFILE
+    async function saveProfile() {
+      const body = {
+        name: document.getElementById('p-name').value,
+        title: document.getElementById('p-title').value,
+        email: document.getElementById('p-email').value,
+        phone: document.getElementById('p-phone').value,
+        location: document.getElementById('p-location').value,
+        bio: document.getElementById('p-bio').value,
+      };
+      try {
+        await fetch(`${API}/profile`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        showToast('Profile saved!', 'success');
+      } catch(e) {
+        showToast('Error saving profile', 'error');
+      }
+    }
+
+    // SKILLS
+    async function loadSkills() {
+      try {
+        const res = await fetch(`${API}/skills`);
+        const data = await res.json();
+        const list = document.getElementById('skills-list');
+        if (!data.skills || data.skills.length === 0) {
+          list.innerHTML = '<p style="color:var(--dim)">No skills found.</p>'; return;
+        }
+        list.innerHTML = `
+          <table class="skills-table">
+            <thead>
+              <tr>
+                <th>SKILL</th>
+                <th>LEVEL</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.skills.map(skill => `
+                <tr>
+                  <td>${typeof skill === 'object' ? skill.name : skill}</td>
+                  <td>
+                    <span style="padding:3px 12px;border-radius:50px;font-size:0.76rem;
+                      font-family:'Fira Code',monospace;background:rgba(0,212,100,0.12);
+                      color:var(--green);border:1px solid rgba(0,212,100,0.3);">
+                      ${typeof skill === 'object' ? skill.level + '%' : 'Excellent'}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn-delete" onclick="deleteSkill('${typeof skill === 'object' ? skill.name : skill}')">🗑️ Remove</button>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+      } catch(e) {
+        document.getElementById('skills-list').innerHTML = '<p style="color:var(--red)">Could not load skills.</p>';
+      }
+    }
+
+    async function addSkill() {
+      const name = document.getElementById('new-skill').value;
+      const icon = document.getElementById('new-skill-icon').value;
+      const level = document.getElementById('new-skill-level').value;
+      if (!name) { showToast('Enter a skill name!', 'error'); return; }
+      try {
+        await fetch(`${API}/skills`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, icon, level: parseInt(level) })
+        });
+        showToast('Skill added!', 'success');
+        document.getElementById('new-skill').value = '';
+        document.getElementById('new-skill-icon').value = '';
+        document.getElementById('new-skill-level').value = '';
+        loadSkills();
+      } catch(e) {
+        showToast('Error adding skill', 'error');
+      }
+    }
+
+    async function deleteSkill(name) {
+      if (!confirm(`Remove "${name}"?`)) return;
+      try {
+        await fetch(`${API}/skills/${encodeURIComponent(name)}`, { method: 'DELETE' });
+        showToast('Skill removed!', 'success');
+        loadSkills();
+      } catch(e) {
+        showToast('Error removing skill', 'error');
+      }
+    }
+
+    // PROJECTS
+    async function loadProjects() {
+      try {
+        const res = await fetch(`${API}/projects`);
+        const data = await res.json();
+        const list = document.getElementById('projects-list');
+        if (!data.projects || data.projects.length === 0) {
+          list.innerHTML = '<p style="color:var(--dim)">No projects yet.</p>'; return;
+        }
+        list.innerHTML = '';
+        data.projects.forEach(p => {
+          const techArr = Array.isArray(p.tech) ? p.tech : (p.tech || '').split(',').map(t => t.trim());
+          list.innerHTML += `
+            <div class="project-item">
+              <div class="project-info">
+                <h3>${p.title}</h3>
+                <p>${p.description}</p>
+                <div class="tech-tags">
+                  ${techArr.map(t => `<span class="tech-tag">${t}</span>`).join('')}
+                </div>
+              </div>
+              <div class="project-actions">
+                <button class="btn-edit" onclick="openEdit(${p.id},'${p.title}','${p.description}','${techArr.join(', ')}','${p.link||''}')">✏️ Edit</button>
+                <button class="btn-delete" onclick="deleteProject(${p.id})">🗑️ Delete</button>
+              </div>
+            </div>`;
+        });
+      } catch(e) {
+        document.getElementById('projects-list').innerHTML = '<p style="color:var(--red)">Could not load projects.</p>';
+      }
+    }
+
+    async function addProject() {
+      const title = document.getElementById('new-title').value;
+      const description = document.getElementById('new-desc').value;
+      const tech = document.getElementById('new-tech').value;
+      const link = document.getElementById('new-link').value;
+      if (!title || !description || !tech) { showToast('Fill in all fields!', 'error'); return; }
+      try {
+        const res = await fetch(`${API}/projects`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description, tech, link })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Project added!', 'success');
+          document.getElementById('new-title').value = '';
+          document.getElementById('new-desc').value = '';
+          document.getElementById('new-tech').value = '';
+          document.getElementById('new-link').value = '';
+          loadProjects();
+        }
+      } catch(e) {
+        showToast('Error adding project', 'error');
+      }
+    }
+
+    async function deleteProject(id) {
+      if (!confirm('Delete this project?')) return;
+      try {
+        const res = await fetch(`${API}/projects/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) { showToast('Project deleted!', 'success'); loadProjects(); }
+      } catch(e) {
+        showToast('Error deleting project', 'error');
+      }
+    }
+
+    function openEdit(id, title, description, tech, link) {
+      document.getElementById('edit-id').value = id;
+      document.getElementById('edit-title').value = title;
+      document.getElementById('edit-desc').value = description;
+      document.getElementById('edit-tech').value = tech;
+      document.getElementById('edit-link').value = link;
+      document.getElementById('edit-modal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('edit-modal').classList.remove('open');
+    }
+
+    async function saveEdit() {
+      const id = document.getElementById('edit-id').value;
+      const title = document.getElementById('edit-title').value;
+      const description = document.getElementById('edit-desc').value;
+      const tech = document.getElementById('edit-tech').value;
+      const link = document.getElementById('edit-link').value;
+      try {
+        const res = await fetch(`${API}/projects/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description, tech, link })
+        });
+        const data = await res.json();
+        if (data.success) { showToast('Project updated!', 'success'); closeModal(); loadProjects(); }
+      } catch(e) {
+        showToast('Error updating project', 'error');
+      }
+    }
+
+    // TEST API
+    async function testApi(route, boxId) {
+      const box = document.getElementById(boxId);
+      box.style.display = 'block';
+      box.textContent = 'Loading...';
+      try {
+        const res = await fetch(`https://portfolio-backend-ezd6.onrender.com${route}`);
+        const data = await res.json();
+        box.textContent = JSON.stringify(data, null, 2);
+        showToast('API tested successfully!', 'success');
+      } catch(e) {
+        box.textContent = 'Error: ' + e.message;
+        showToast('API test failed!', 'error');
+      }
+    }
+
+    // TOAST
+    function showToast(message, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    // INIT
+    loadStats();
+  </script>
+</body>
+</html>

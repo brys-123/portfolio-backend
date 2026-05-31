@@ -1,0 +1,43 @@
+{
+  "projects": [
+    {
+      "id": 4,
+      "title": "sales forecasting ",
+      "description": "The  the prediction of sales based on the historical  data",
+      "tech": [
+        "advance ms excel"
+      ],
+      "link": "http/www.google.com"
+    },
+    {
+      "id": 1,
+      "title": "Customer Churn Prediction",
+      "description": "A machine learning model that predicts customer churn using classification algorithms.",
+      "tech": [
+        "Python",
+        "Flask",
+        "html and css"
+      ],
+      "link": "https://customer-churn-prediction-2v72.onrender.com"
+    },
+    {
+      "id": 2,
+      "title": "Quiz Management System",
+      "description": "A full web-based quiz management system with two interfaces — an Admin side for managing quizzes and a User side for taking quizzes. Built with Python.",
+      "tech": [
+        "Python",
+        "Flask"
+      ],
+      "link": "https://online-quiz-management-c2v2.onrender.com/"
+    },
+    {
+      "id": 1779447374421,
+      "title": "budget analysis",
+      "description": " project is about personal budget control based on the income and expenses",
+      "tech": [
+        "R"
+      ],
+      "link": "www.book.com"
+    }
+  ]
+}
